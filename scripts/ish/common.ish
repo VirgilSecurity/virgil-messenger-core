@@ -1,0 +1,27 @@
+#!/bin/bash
+
+PROJECT_DIR="${SCRIPT_FOLDER}/../"
+APPLICATION_NAME=virgil-messenger
+BUILD_TYPE=release
+
+export QT_INSTALL_DIR_BASE=${PROJECT_DIR}/prebuilt
+
+source ${SCRIPT_FOLDER}/ish/error.ish
+
+#
+# Check platform
+#
+if [ $(uname) == "Darwin" ]; then
+  HOST_PLATFORM="darwin-x86_64"
+elif [ $(uname) == "Linux" ]; then
+  HOST_PLATFORM="linux-x86_64"
+else
+  echo "Wrong platform $(uname). Supported only: [Linux, Darwin]"
+  exit 1
+fi
+
+QT_SDK_DIR="${1:-/opt/Qt/5.12.6}"
+if [ -z "$QT_SDK_DIR" ] || [ ! -d ${QT_SDK_DIR} ]; then
+    echo "Wrong Qt directory: ${QT_SDK_DIR}"
+    exit 1
+fi

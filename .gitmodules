@@ -1,0 +1,6 @@
+[submodule "qxmpp"]
+	path = qxmpp
+	url = https://github.com/VirgilSecurity/qxmpp.git
+[submodule "virgil-iotkit"]
+	path = virgil-iotkit
+	url = https://github.com/VirgilSecurity/virgil-iotkit.git
