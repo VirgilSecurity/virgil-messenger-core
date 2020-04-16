@@ -1,15 +1,15 @@
 #!/bin/bash
 
 SCRIPT_FOLDER="$( cd "$( dirname "$0" )" && pwd )"
-source ${SCRIPT_FOLDER}/ish/common.ish
+source ${SCRIPT_FOLDER}/ish/common.sh
 
 #
 #   Global variables
 #
-BUILD_DIR="${PROJECT_DIR}"
+BUILD_DIR="${PROJECT_DIR}/tmp/"
 LIBS_REPO="https://github.com/VirgilSecurity/openssl-curl-android.git"
 LIBS_BRANCH="virgil"
-export INSTALL_DIR_BASE="${SCRIPT_FOLDER}/prebuilt"
+export INSTALL_DIR_BASE="${PROJECT_DIR}/prebuilt"
 
 #***************************************************************************************
 
@@ -22,13 +22,11 @@ function usage_example() {
 #
 #    Check input parameters
 #
-
-ANDROID_NDK_HOME="${1}"
 HOST_TAG="${2}"
 ANDROID_APP_ID="${3}"
 
-if [ -z "$ANDROID_NDK_HOME" ] || [ ! -d ${ANDROID_NDK_HOME} ]; then
-    echo "Wrong NDK path: ${ANDROID_NDK_HOME}"
+if [ -z "$CFG_ANDROID_NDK" ] || [ ! -d ${CFG_ANDROID_NDK} ]; then
+    echo "Wrong NDK path: ${CFG_ANDROID_NDK}"
     usage_example
     exit 1
 fi
@@ -49,24 +47,24 @@ fi
 # Prepare directory
 #
 if [ -d ${BUILD_DIR} ]; then
-     rm -rf ${BUILD_DIR}
+    rm -rf ${BUILD_DIR}
 fi
 mkdir ${BUILD_DIR}
 check_error
 
 pushd ${BUILD_DIR}
-     #
-     #    Clone repository
-     #
-     git clone --recursive -b ${LIBS_BRANCH} ${LIBS_REPO}
-     check_error
+#
+#    Clone repository
+#
+git clone --recursive -b ${LIBS_BRANCH} ${LIBS_REPO}
+check_error
 
-     #
-     #    Build for all Android architectures
-     #
-     pushd openssl-curl-android
-          export 
-          ./build.sh ${ANDROID_NDK_HOME} ${HOST_TAG} ${ANDROID_APP_ID}
-          check_error
-     popd
+#
+#    Build for all Android architectures
+#
+pushd openssl-curl-android
+export
+./build.sh ${CFG_ANDROID_NDK} ${HOST_TAG} ${ANDROID_APP_ID}
+check_error
+popd
 popd

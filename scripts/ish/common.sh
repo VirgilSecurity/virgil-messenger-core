@@ -8,8 +8,6 @@ BUILD_IOTKIT_FOR_QT_SH=${SCRIPT_FOLDER}/../virgil-iotkit/sdk/scripts/build-for-q
 
 export QT_INSTALL_DIR_BASE=${PROJECT_DIR}/prebuilt
 
-source ${SCRIPT_FOLDER}/ish/error.sh
-
 #
 # Check platform
 #
@@ -22,18 +20,34 @@ else
     exit 1
 fi
 
-CONFIG_FILE=${1}
-if [ ! -f ${CONFIG_FILE} ]; then
-    echo "Wrong configuration file: ${CONFIG_FILE}"
-    exit 1
+if [ "${VS_COMMON_SIMPIFIED}" != "true" ]; then
+    CONFIG_FILE=${1}
+    if [ ! -f ${CONFIG_FILE} ]; then
+        echo "Wrong configuration file: ${CONFIG_FILE}"
+        exit 1
+    fi
+    
+    source ${CONFIG_FILE}
+    
+    if [ -z "$CFG_QT_SDK_DIR" ] || [ ! -d ${CFG_QT_SDK_DIR} ]; then
+        echo "Wrong Qt directory: CFG_QT_SDK_DIR=${CFG_QT_SDK_DIR}"
+        exit 1
+    fi
 fi
 
-source ${CONFIG_FILE}
-
-if [ -z "$CFG_QT_SDK_DIR" ] || [ ! -d ${CFG_QT_SDK_DIR} ]; then
-    echo "Wrong Qt directory: CFG_QT_SDK_DIR=${CFG_QT_SDK_DIR}"
-    exit 1
-fi
+#***************************************************************************************
+check_error() {
+    RETRES=$?
+    if [ $RETRES != 0 ]; then
+        echo "----------------------------------------------------------------------"
+        echo "############# !!! PROCESS ERROR ERRORCODE=[$RETRES]  #################"
+        echo "----------------------------------------------------------------------"
+        [ "$1" == "0" ] || exit $RETRES
+    else
+        echo "-----# Process OK. ---------------------------------------------------"
+    fi
+    return $RETRES
+}
 
 #*************************************************************************************************************
 function prepare_build_dir() {
@@ -44,8 +58,8 @@ function prepare_build_dir() {
         echo
         return
     fi
-    rm -rf ${BUILD_DIR} || true
-    mkdir -p ${BUILD_DIR}
+    rm -rf ${1} || true
+    mkdir -p ${1}
     check_error
 }
 

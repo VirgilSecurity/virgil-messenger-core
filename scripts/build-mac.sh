@@ -16,10 +16,12 @@ BUILD_DIR=${PROJECT_DIR}/prebuilt/${QT_BUILD_DIR_SUFFIX}
 
 print_title
 
-prepare_build_dir
+prepare_build_dir ${BUILD_DIR}
 
 build_iotkit macos
 
 build_qxmpp clang_64
+
+${SCRIPT_FOLDER}/copy-qt-iotkit.sh
 
 print_final_message

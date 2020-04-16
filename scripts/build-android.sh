@@ -35,7 +35,7 @@ build_external_libs() {
         echo
         return
     fi
-    ${SCRIPT_FOLDER}/prepare-android-libs.sh ${CFG_ANDROID_NDK} ${HOST_PLATFORM} ${ANDOID_APP_ID}
+    ${SCRIPT_FOLDER}/prepare-android-libs.sh ${CONFIG_FILE} ${HOST_PLATFORM} ${ANDOID_APP_ID}
     check_error
 }
 
@@ -51,8 +51,6 @@ build_proc() {
     
     print_title
     
-    prepare_build_dir
-    
     build_iotkit android ${CFG_ANDROID_NDK} ${LIB_ARCH} ${CFG_ANDROID_PLATFORM}
     
     build_qxmpp ${PLATFORM} \
@@ -66,8 +64,14 @@ build_proc() {
 
 #*************************************************************************************************************
 
+prepare_build_dir ${PROJECT_DIR}/prebuilt/android.arm64-v8a
+prepare_build_dir ${PROJECT_DIR}/prebuilt/android.armeabi-v7a
+prepare_build_dir ${PROJECT_DIR}/prebuilt/android.x86
+
 build_external_libs
 
 build_proc android_arm64_v8a arm64-v8a
 build_proc android_armv7 armeabi-v7a
 build_proc android_x86 x86
+
+${SCRIPT_FOLDER}/copy-qt-iotkit.sh
