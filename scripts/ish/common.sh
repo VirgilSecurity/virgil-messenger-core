@@ -108,12 +108,11 @@ function build_qxmpp() {
         echo
         return
     fi
-    ${SCRIPT_FOLDER}/prepare-qxmpp.sh ${@:2} \
-    ${CFG_QT_SDK_DIR}/${1} \
+    ${SCRIPT_FOLDER}/prepare-qxmpp.sh -DCMAKE_PREFIX_PATH="${CFG_QT_SDK_DIR}/${1}"  \
     -DQt5_DIR=${CFG_QT_SDK_DIR}/${1}/lib/cmake/Qt5/ \
     -DQt5Core_DIR=${CFG_QT_SDK_DIR}/${1}/lib/cmake/Qt5Core/ \
     -DQt5Network_DIR=${CFG_QT_SDK_DIR}/${1}/lib/cmake/Qt5Network/ \
-    -DQt5Xml_DIR=${CFG_QT_SDK_DIR}/${1}/lib/cmake/Qt5Xml/
+    -DQt5Xml_DIR=${CFG_QT_SDK_DIR}/${1}/lib/cmake/Qt5Xml/  ${@:2}
     check_error
 }
 
