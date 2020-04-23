@@ -13,7 +13,7 @@ export QT_INSTALL_DIR_BASE=${PROJECT_DIR}/prebuilt
 #
 if [ $(uname) == "Darwin" ]; then
     HOST_PLATFORM="darwin-x86_64"
-    elif [ $(uname) == "Linux" ]; then
+elif [ $(uname) == "Linux" ]; then
     HOST_PLATFORM="linux-x86_64"
 else
     echo "Wrong platform $(uname). Supported only: [Linux, Darwin]"
@@ -26,9 +26,9 @@ if [ "${VS_COMMON_SIMPIFIED}" != "true" ]; then
         echo "Wrong configuration file: ${CONFIG_FILE}"
         exit 1
     fi
-    
+
     source ${CONFIG_FILE}
-    
+
     if [ -z "$CFG_QT_SDK_DIR" ] || [ ! -d ${CFG_QT_SDK_DIR} ]; then
         echo "Wrong Qt directory: CFG_QT_SDK_DIR=${CFG_QT_SDK_DIR}"
         exit 1
@@ -108,11 +108,13 @@ function build_qxmpp() {
         echo
         return
     fi
+    
     ${SCRIPT_FOLDER}/prepare-qxmpp.sh -DCMAKE_PREFIX_PATH="${CFG_QT_SDK_DIR}/${1}"  \
     -DQt5_DIR=${CFG_QT_SDK_DIR}/${1}/lib/cmake/Qt5/ \
     -DQt5Core_DIR=${CFG_QT_SDK_DIR}/${1}/lib/cmake/Qt5Core/ \
     -DQt5Network_DIR=${CFG_QT_SDK_DIR}/${1}/lib/cmake/Qt5Network/ \
     -DQt5Xml_DIR=${CFG_QT_SDK_DIR}/${1}/lib/cmake/Qt5Xml/  ${@:2}
+
     check_error
 }
 

@@ -4,3 +4,6 @@
 [submodule "virgil-iotkit"]
 	path = virgil-iotkit
 	url = https://github.com/VirgilSecurity/virgil-iotkit.git
+[submodule "breakpad"]
+	path = breakpad
+	url = https://github.com/VirgilSecurity/breakpad-cmake.git
