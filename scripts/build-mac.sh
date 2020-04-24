@@ -49,7 +49,7 @@ function get_sparkle() {
 
 print_title
 
-prepare_build_dir ${BUILD_DIR}s
+prepare_build_dir ${BUILD_DIR}
 
 build_iotkit macos
 
