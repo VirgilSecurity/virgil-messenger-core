@@ -12,7 +12,7 @@ COMMON_LIB_PATH=${BUILD_DIR}/release/installed/usr/local/lib
 #***************************************************************************************
 cp_libs() {
   local SRC_COMMON_LIB="${1}"
-  for cur_file in "${SRC_COMMON_LIB}"; do
+  for cur_file in ${SRC_COMMON_LIB}; do
     if [ ! -f $cur_file ]; then
       echo " > ${cur_file} NOT FOUND"
       return 1
@@ -41,9 +41,8 @@ echo
 echo "=== Copy common library"
 echo
 
-ls -lah ${BUILD_DIR}/release/installed/usr/local/bin
-cp_libs ${BUILD_DIR}/release/installed/usr/local/bin/*.dll
-#rm -rf ${BUILD_DIR}/release/installed/usr/local/bin
+cp_libs "${BUILD_DIR}/release/installed/usr/local/bin/*.dll"
+rm -rf ${BUILD_DIR}/release/installed/usr/local/bin
 
 MINGW_BASE="/usr/i686-w64-mingw32/sys-root/mingw/bin"
 
