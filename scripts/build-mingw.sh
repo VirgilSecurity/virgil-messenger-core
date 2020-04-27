@@ -41,8 +41,9 @@ echo
 echo "=== Copy common library"
 echo
 
+ls -lah ${BUILD_DIR}/release/installed/usr/local/bin
 cp_libs ${BUILD_DIR}/release/installed/usr/local/bin/*.dll
-rm -rf ${BUILD_DIR}/release/installed/usr/local/bin
+#rm -rf ${BUILD_DIR}/release/installed/usr/local/bin
 
 MINGW_BASE="/usr/i686-w64-mingw32/sys-root/mingw/bin"
 
