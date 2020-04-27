@@ -41,8 +41,12 @@ echo
 echo "=== Copy common library"
 echo
 
+# Copy dlls from bin directory
 cp_libs "${BUILD_DIR}/release/installed/usr/local/bin/*.dll"
 rm -rf ${BUILD_DIR}/release/installed/usr/local/bin
+
+# Copy already built windows dll's. openssl 1.1
+cp_libs "${SCRIPT_FOLDER}/../win/dll/*.dll"
 
 MINGW_BASE="/usr/i686-w64-mingw32/sys-root/mingw/bin"
 
