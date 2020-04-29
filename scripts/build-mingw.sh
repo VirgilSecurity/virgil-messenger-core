@@ -32,7 +32,7 @@ build_iotkit windows
 
 # TODO: Why do we use gcc_64 ? Looks like there is need in a fix.
 build_qxmpp gcc_64 \
-  -DCMAKE_TOOLCHAIN_FILE=/usr/share/mingw/toolchain-mingw64.cmake \
+  -DCMAKE_TOOLCHAIN_FILE=/usr/share/mingw/toolchain-mingw32.cmake \
   -DCYGWIN=1
 
 ${SCRIPT_FOLDER}/copy-qt-iotkit.sh
