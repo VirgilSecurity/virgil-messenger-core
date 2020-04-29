@@ -61,7 +61,7 @@ cp_libs libssh2-1.dll
 cp_libs libidn2-0.dll
 cp_libs zlib1.dll
 cp_libs libgcc_s_sjlj-1.dll
-cp_libs ${CFG_QT_SDK_DIR}/mingw64/bin/libgcc_s_dw2-1.dll
+cp_libs ${CFG_QT_SDK_DIR}/mingw64/bin/libgcc_s_seh-1.dll
 popd
 
 print_final_message
