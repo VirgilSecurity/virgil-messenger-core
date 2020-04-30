@@ -7,3 +7,6 @@
 [submodule "breakpad"]
 	path = breakpad
 	url = https://github.com/VirgilSecurity/breakpad-cmake.git
+[submodule "ext/qtwebdriver"]
+	path = ext/qtwebdriver
+	url = https://github.com/VirgilSecurity/qtwebdriver.git
