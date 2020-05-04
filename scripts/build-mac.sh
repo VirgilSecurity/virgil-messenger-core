@@ -2,6 +2,7 @@
 
 SCRIPT_FOLDER="$(cd "$(dirname "$0")" && pwd)"
 source ${SCRIPT_FOLDER}/ish/common.sh
+source ${SCRIPT_FOLDER}/ish/qtwebdriver.sh
 
 #
 #   Global variables
@@ -50,6 +51,10 @@ function get_sparkle() {
 print_title
 
 prepare_build_dir ${BUILD_DIR}
+
+print_message "Building qtwebdriver"
+
+build_qtwebdriver ${QMAKE_BIN} ${BUILD_DIR}
 
 build_iotkit macos
 

@@ -21,11 +21,7 @@ else
 fi
 
 if [ "${VS_COMMON_SIMPIFIED}" != "true" ]; then
-    CONFIG_FILE=${1}
-    if [ ! -f ${CONFIG_FILE} ]; then
-        echo "Wrong configuration file: ${CONFIG_FILE}"
-        exit 1
-    fi
+    CONFIG_FILE=${1:-${SCRIPT_FOLDER}/config/config-all.sh}
 
     source ${CONFIG_FILE}
 
@@ -81,6 +77,13 @@ function print_final_message() {
     echo "===================================="
     echo "=== ${PLATFORM} is ready"
     echo "===================================="
+    echo
+}
+
+#*************************************************************************************************************
+function print_message() {
+    echo
+    echo "=== $@"
     echo
 }
 

@@ -2,6 +2,7 @@
 
 SCRIPT_FOLDER="$(cd "$(dirname "$0")" && pwd)"
 source ${SCRIPT_FOLDER}/ish/common.sh
+source ${SCRIPT_FOLDER}/ish/qtwebdriver.sh
 
 PLATFORM=linux-mingw
 LINUX_QMAKE="${CFG_QT_SDK_DIR}/mingw32/bin/qmake"
@@ -28,11 +29,15 @@ print_title
 
 prepare_build_dir ${BUILD_DIR}
 
+print_message "Building qtwebdriver"
+
+build_qtwebdriver ${LINUX_QMAKE} ${BUILD_DIR}
+
 build_iotkit windows
 
 # TODO: Why do we use gcc_64 ? Looks like there is need in a fix.
 build_qxmpp gcc_64 \
-  -DCMAKE_TOOLCHAIN_FILE=/usr/share/mingw/toolchain-mingw32.cmake \
+  -DCMAKE_TOOLCHAIN_FILE=/usr/share/mingw/toolchain-mingw64.cmake \
   -DCYGWIN=1
 
 ${SCRIPT_FOLDER}/copy-qt-iotkit.sh
@@ -48,7 +53,7 @@ rm -rf ${BUILD_DIR}/release/installed/usr/local/bin
 # Copy already built windows dll's. openssl 1.1
 cp_libs "${SCRIPT_FOLDER}/../win/dll/*.dll"
 
-MINGW_BASE="/usr/i686-w64-mingw32/sys-root/mingw/bin"
+MINGW_BASE="/usr/x86_64-w64-mingw32/sys-root/mingw/bin"
 
 pushd "${MINGW_BASE}"
 cp_libs libssl-10.dll
@@ -61,7 +66,7 @@ cp_libs libssh2-1.dll
 cp_libs libidn2-0.dll
 cp_libs zlib1.dll
 cp_libs libgcc_s_sjlj-1.dll
-cp_libs ${CFG_QT_SDK_DIR}/mingw32/bin/libgcc_s_dw2-1.dll
+cp_libs ${CFG_QT_SDK_DIR}/mingw64/bin/libgcc_s_seh-1.dll
 popd
 
 print_final_message
