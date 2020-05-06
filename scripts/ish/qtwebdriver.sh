@@ -14,8 +14,9 @@ build_qtwebdriver() {
      mkdir -p ${DESTDIR_BIN}/lib || true
      cp -f bin/* ${DESTDIR_BIN}/lib
      check_error
-     mkdir -p ${DESTDIR_BIN}/include/qtwebdriver || true
+     mkdir -p ${DESTDIR_BIN}/include/qtwebdriver/src || true
      cp -rf ${PROJECT_DIR}/qtwebdriver/inc/* ${DESTDIR_BIN}/include/qtwebdriver/
+     cp -rf ${PROJECT_DIR}/qtwebdriver/src/* ${DESTDIR_BIN}/include/qtwebdriver/src/
      check_error     
    popd
    
