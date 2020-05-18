@@ -8,7 +8,7 @@ QXMPP_DIR="${SCRIPT_FOLDER}/../qxmpp"
 BUILD_DIR_BASE="${QXMPP_DIR}"
 CMAKE_CUSTOM_PARAM="${@}"
 
-echo "CMAKE_CUSTOM_PARAM=${CMAKE_CUSTOM_PARAM}" >/111
+echo "CMAKE_CUSTOM_PARAM=${CMAKE_CUSTOM_PARAM}"
 
 #***************************************************************************************
 check_error() {
