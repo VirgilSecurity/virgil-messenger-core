@@ -2,7 +2,7 @@
 
 SCRIPT_FOLDER="$( cd "$( dirname "$0" )" && pwd )"
 source ${SCRIPT_FOLDER}/ish/common.sh
-
+source ${SCRIPT_FOLDER}/ish/qtwebdriver.sh
 #
 #   Global variables
 #
@@ -16,6 +16,10 @@ BUILD_DIR=${PROJECT_DIR}/prebuilt/${QT_BUILD_DIR_SUFFIX}
 print_title
 
 prepare_build_dir ${BUILD_DIR}
+
+print_message "Building qtwebdriver"
+
+build_qtwebdriver ${LINUX_QMAKE} ${BUILD_DIR}
 
 build_iotkit linux
 
