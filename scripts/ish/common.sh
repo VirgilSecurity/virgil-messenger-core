@@ -52,10 +52,10 @@ function prepare_build_dir() {
     if [ "${CFG_CLEAN}" == "off" ]; then
         echo "Skip due to config parameter CFG_CLEAN"
         echo
-        return
+    else
+        rm -rf ${1} || true
     fi
-    rm -rf ${1} || true
-    mkdir -p ${1}
+    mkdir -p ${1} || true
     check_error
 }
 
@@ -111,12 +111,12 @@ function build_qxmpp() {
         echo
         return
     fi
-    
-    ${SCRIPT_FOLDER}/prepare-qxmpp.sh -DCMAKE_PREFIX_PATH="${CFG_QT_SDK_DIR}/${1}"  \
-    -DQt5_DIR=${CFG_QT_SDK_DIR}/${1}/lib/cmake/Qt5/ \
-    -DQt5Core_DIR=${CFG_QT_SDK_DIR}/${1}/lib/cmake/Qt5Core/ \
-    -DQt5Network_DIR=${CFG_QT_SDK_DIR}/${1}/lib/cmake/Qt5Network/ \
-    -DQt5Xml_DIR=${CFG_QT_SDK_DIR}/${1}/lib/cmake/Qt5Xml/  ${@:2}
+
+    ${SCRIPT_FOLDER}/prepare-qxmpp.sh -DCMAKE_PREFIX_PATH="${CFG_QT_SDK_DIR}/${1}" \
+        -DQt5_DIR=${CFG_QT_SDK_DIR}/${1}/lib/cmake/Qt5/ \
+        -DQt5Core_DIR=${CFG_QT_SDK_DIR}/${1}/lib/cmake/Qt5Core/ \
+        -DQt5Network_DIR=${CFG_QT_SDK_DIR}/${1}/lib/cmake/Qt5Network/ \
+        -DQt5Xml_DIR=${CFG_QT_SDK_DIR}/${1}/lib/cmake/Qt5Xml/ ${@:2}
 
     check_error
 }

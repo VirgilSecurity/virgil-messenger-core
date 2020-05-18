@@ -11,6 +11,8 @@ export CFG_QT_SDK_DIR=/opt/Qt/5.12.6
 export CFG_BUILD_SPARKLE="on"
 
 # iOS
+export CFG_BUILD_FOR_IOS_DEVICES="on"
+export CFG_BUILD_FOR_IOS_SIMULATOR="on"
 export CFG_BUILD_IOS_CURL_SSL="on"
 
 # Android
