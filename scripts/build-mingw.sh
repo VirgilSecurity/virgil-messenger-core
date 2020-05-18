@@ -2,6 +2,7 @@
 
 SCRIPT_FOLDER="$(cd "$(dirname "$0")" && pwd)"
 source ${SCRIPT_FOLDER}/ish/common.sh
+source ${SCRIPT_FOLDER}/ish/qtwebdriver.sh
 
 PLATFORM=linux-mingw
 LINUX_QMAKE="${CFG_QT_SDK_DIR}/mingw32/bin/qmake"
@@ -27,6 +28,10 @@ cp_libs() {
 print_title
 
 prepare_build_dir ${BUILD_DIR}
+
+print_message "Building qtwebdriver"
+
+build_qtwebdriver ${LINUX_QMAKE} ${BUILD_DIR}
 
 build_iotkit windows
 
