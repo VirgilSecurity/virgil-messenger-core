@@ -19,7 +19,7 @@ build_external_libs() {
         echo
         return
     fi
-    ${SCRIPT_FOLDER}/prepare-ios-libs.sh ${CONFIG_FILE} ${HOST_PLATFORM}
+    ${SCRIPT_FOLDER}/prepare-ios-libs.sh ${CONFIG_FILE} ${HOST_PLATFORM} ${1}
     check_error
 }
 
@@ -67,7 +67,7 @@ build_ios_sim() {
     BUILD_DIR=${PROJECT_DIR}/prebuilt/${QT_BUILD_DIR_SUFFIX}
     prepare_build_dir ${BUILD_DIR}
 
-    build_external_libs
+    build_external_libs "sim"
 
     build_iotkit ios-sim
 
