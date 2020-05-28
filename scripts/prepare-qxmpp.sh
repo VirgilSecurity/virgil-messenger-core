@@ -86,3 +86,4 @@ echo "${CMAKE_ARGUMENTS}"
 #   Build both Debug and Release
 #
 build "release" "${CMAKE_ARGUMENTS}"
+build "debug" "${CMAKE_ARGUMENTS}"
