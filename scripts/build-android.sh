@@ -50,7 +50,6 @@ build_proc() {
     BUILD_DIR=${PROJECT_DIR}/prebuilt/${QT_BUILD_DIR_SUFFIX}
     
     print_title
-    
     build_iotkit android ${CFG_ANDROID_NDK} ${LIB_ARCH} ${CFG_ANDROID_PLATFORM}
     
     build_qxmpp ${PLATFORM} \

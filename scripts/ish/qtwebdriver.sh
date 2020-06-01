@@ -2,7 +2,6 @@
 
 build_qtwebdriver() {
    local QMAKE_BIN="${1}"
-   local DESTDIR_BIN="${BUILD_DIR}/release/installed/usr/local"
    rm -rf ${PROJECT_DIR}/qtwebdriver/build
    mkdir -p ${PROJECT_DIR}/qtwebdriver/build
    check_error
@@ -11,12 +10,20 @@ build_qtwebdriver() {
      check_error
      make
      check_error
-     mkdir -p ${DESTDIR_BIN}/lib || true
-     cp -f bin/* ${DESTDIR_BIN}/lib
+     mkdir -p ${BUILD_DIR}/release/installed/usr/local/lib || true
+     mkdir -p ${BUILD_DIR}/debug/installed/usr/local/lib || true     
+     mkdir -p ${BUILD_DIR}/release/installed/usr/local/include/qtwebdriver/src || true
+     mkdir -p ${BUILD_DIR}/debug/installed/usr/local/include/qtwebdriver/src || true
+     
+     cp -f bin/* ${BUILD_DIR}/release/installed/usr/local/lib
+     check_error     
+     cp -f bin/* ${BUILD_DIR}/debug/installed/usr/local/lib     
      check_error
-     mkdir -p ${DESTDIR_BIN}/include/qtwebdriver/src || true
-     cp -rf ${PROJECT_DIR}/qtwebdriver/inc/* ${DESTDIR_BIN}/include/qtwebdriver/
-     cp -rf ${PROJECT_DIR}/qtwebdriver/src/* ${DESTDIR_BIN}/include/qtwebdriver/src/
+
+     cp -rf ${PROJECT_DIR}/qtwebdriver/inc/* ${BUILD_DIR}/release/installed/usr/local/include/qtwebdriver/
+     cp -rf ${PROJECT_DIR}/qtwebdriver/src/* ${BUILD_DIR}/release/installed/usr/local/include/qtwebdriver/src/
+     cp -rf ${PROJECT_DIR}/qtwebdriver/inc/* ${BUILD_DIR}/debug/installed/usr/local/include/qtwebdriver/
+     cp -rf ${PROJECT_DIR}/qtwebdriver/src/* ${BUILD_DIR}/debug/installed/usr/local/include/qtwebdriver/src/     
      check_error     
    popd
    
