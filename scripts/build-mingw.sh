@@ -70,10 +70,12 @@ build_qxmpp gcc_64 \
 
 ${SCRIPT_FOLDER}/copy-qt-iotkit.sh
 
-echo
-echo "=== Copy common library (debug)"
-echo
-copy_libs debug
+if [ "${BUILD_WITH_DEBUG}" == "true" ]; then
+  echo
+  echo "=== Copy common library (debug)"
+  echo
+  copy_libs debug
+fi  
 
 echo
 echo "=== Copy common library (release)"

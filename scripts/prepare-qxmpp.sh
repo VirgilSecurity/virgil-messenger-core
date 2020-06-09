@@ -86,4 +86,6 @@ echo "${CMAKE_ARGUMENTS}"
 #   Build both Debug and Release
 #
 build "release" "${CMAKE_ARGUMENTS}"
-build "debug" "${CMAKE_ARGUMENTS}"
+if [ "${BUILD_WITH_DEBUG}" == "true" ]; then
+  build "debug" "${CMAKE_ARGUMENTS}"
+fi  
