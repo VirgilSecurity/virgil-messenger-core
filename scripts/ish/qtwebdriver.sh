@@ -10,21 +10,22 @@ build_qtwebdriver() {
      check_error
      make
      check_error
-     mkdir -p ${BUILD_DIR}/release/installed/usr/local/lib || true
-     mkdir -p ${BUILD_DIR}/debug/installed/usr/local/lib || true     
-     mkdir -p ${BUILD_DIR}/release/installed/usr/local/include/qtwebdriver/src || true
-     mkdir -p ${BUILD_DIR}/debug/installed/usr/local/include/qtwebdriver/src || true
-     
-     cp -f bin/* ${BUILD_DIR}/release/installed/usr/local/lib
-     check_error     
-     cp -f bin/* ${BUILD_DIR}/debug/installed/usr/local/lib     
-     check_error
 
+     mkdir -p ${BUILD_DIR}/release/installed/usr/local/lib || true
+     mkdir -p ${BUILD_DIR}/release/installed/usr/local/include/qtwebdriver/src || true
      cp -rf ${PROJECT_DIR}/qtwebdriver/inc/* ${BUILD_DIR}/release/installed/usr/local/include/qtwebdriver/
      cp -rf ${PROJECT_DIR}/qtwebdriver/src/* ${BUILD_DIR}/release/installed/usr/local/include/qtwebdriver/src/
-     cp -rf ${PROJECT_DIR}/qtwebdriver/inc/* ${BUILD_DIR}/debug/installed/usr/local/include/qtwebdriver/
-     cp -rf ${PROJECT_DIR}/qtwebdriver/src/* ${BUILD_DIR}/debug/installed/usr/local/include/qtwebdriver/src/     
+     cp -f bin/* ${BUILD_DIR}/release/installed/usr/local/lib
      check_error     
+     
+     if [ "${BUILD_WITH_DEBUG}" == "true" ]; then
+       mkdir -p ${BUILD_DIR}/debug/installed/usr/local/lib || true     
+       mkdir -p ${BUILD_DIR}/debug/installed/usr/local/include/qtwebdriver/src || true     
+       cp -f bin/* ${BUILD_DIR}/debug/installed/usr/local/lib     
+       cp -rf ${PROJECT_DIR}/qtwebdriver/inc/* ${BUILD_DIR}/debug/installed/usr/local/include/qtwebdriver/
+       cp -rf ${PROJECT_DIR}/qtwebdriver/src/* ${BUILD_DIR}/debug/installed/usr/local/include/qtwebdriver/src/            
+       check_error
+     fi
    popd
    
    
