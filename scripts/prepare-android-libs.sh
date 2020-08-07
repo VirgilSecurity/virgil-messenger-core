@@ -8,7 +8,7 @@ source ${SCRIPT_FOLDER}/ish/common.sh
 #
 BUILD_DIR="${PROJECT_DIR}/tmp/"
 LIBS_REPO="https://github.com/VirgilSecurity/openssl-curl-android.git"
-LIBS_BRANCH="feature/build-debug"
+LIBS_BRANCH="feature/static-lib"
 export INSTALL_DIR_BASE="${PROJECT_DIR}/prebuilt"
 
 #***************************************************************************************
