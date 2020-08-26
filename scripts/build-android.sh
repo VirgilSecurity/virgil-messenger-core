@@ -66,11 +66,13 @@ build_proc() {
 prepare_build_dir ${PROJECT_DIR}/prebuilt/android.arm64-v8a
 prepare_build_dir ${PROJECT_DIR}/prebuilt/android.armeabi-v7a
 prepare_build_dir ${PROJECT_DIR}/prebuilt/android.x86
+prepare_build_dir ${PROJECT_DIR}/prebuilt/android.x86_64
 
 build_external_libs
 
-build_proc android_arm64_v8a arm64-v8a
-build_proc android_armv7 armeabi-v7a
-build_proc android_x86 x86
+build_proc android arm64-v8a
+build_proc android armeabi-v7a
+build_proc android x86
+build_proc android x86_64
 
 ${SCRIPT_FOLDER}/copy-qt-iotkit.sh
