@@ -45,7 +45,7 @@ build_ios() {
 
     build_qxmpp ios \
         -DAPPLE_PLATFORM="IOS" \
-        -DAPPLE_BITCODE=OFF \
+        -DAPPLE_BITCODE=ON \
         -DCMAKE_TOOLCHAIN_FILE="${SCRIPT_FOLDER}/../virgil-iotkit/sdk/cmake/toolchain/apple.cmake"
 
     print_final_message
@@ -73,7 +73,7 @@ build_ios_sim() {
 
     build_qxmpp ios \
         -DAPPLE_PLATFORM="IOS_SIM64" \
-        -DAPPLE_BITCODE=OFF \
+        -DAPPLE_BITCODE=ON \
         -DCMAKE_TOOLCHAIN_FILE="${SCRIPT_FOLDER}/../virgil-iotkit/sdk/cmake/toolchain/apple.cmake"
 
     print_final_message
