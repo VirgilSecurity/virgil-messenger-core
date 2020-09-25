@@ -17,5 +17,5 @@ export CFG_BUILD_IOS_CURL_SSL="off"
 
 # Android
 export CFG_BUILD_ANDROID_CURL_SSL="on"
-export CFG_ANDROID_PLATFORM="android-24"
+export CFG_ANDROID_PLATFORM="android-21"
 export CFG_ANDROID_NDK=/opt/android/ndk
