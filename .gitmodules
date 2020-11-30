@@ -1,3 +1,0 @@
-[submodule "qtwebdriver"]
-	path = qtwebdriver
-	url = https://github.com/VirgilSecurity/qtwebdriver.git
