@@ -4,6 +4,3 @@
 [submodule "qtwebdriver"]
 	path = qtwebdriver
 	url = https://github.com/VirgilSecurity/qtwebdriver.git
-[submodule "qxmpp"]
-	path = qxmpp
-	url = https://github.com/qxmpp-project/qxmpp.git
