@@ -95,9 +95,15 @@ function build_qxmpp() {
        QT_PREFIX="gcc_64"
        CMAKE_DEPS_ARGUMENTS=" "
    elif [[ "${PLATFORM}" == "ios" ]]; then
-       CMAKE_DEPS_ARGUMENTS=""
+       CMAKE_DEPS_ARGUMENTS=" \
+        -DAPPLE_PLATFORM=IOS -DAPPLE_BITCODE=ON \
+        -DCMAKE_TOOLCHAIN_FILE=${SCRIPT_FOLDER}/../ext/virgil-crypto-c/cmake/apple.cmake
+        "
    elif [[ "${PLATFORM}" == "ios-sim" ]]; then
-       CMAKE_DEPS_ARGUMENTS=" "
+       CMAKE_DEPS_ARGUMENTS=" \
+        -DAPPLE_PLATFORM=IOS -DAPPLE_BITCODE=ON \
+        -DCMAKE_TOOLCHAIN_FILE=${SCRIPT_FOLDER}/../ext/virgil-crypto-c/cmake/apple.cmake
+        "
    elif [[ "${PLATFORM}" == "android" ]]; then
        QT_PREFIX="android"   
        BUILD_DIR_SUFFIX="${PLATFORM}.${ANDROID_ABI}"
@@ -291,6 +297,25 @@ build_macos() {
 }
 
 ############################################################################################
+build_ios() {
+    print_title
+    prepare_build_dir ios
+    build_comkit ios
+    build_qxmpp ios
+    print_final_message
+
+}
+
+############################################################################################
+build_ios_sim() {
+    print_title
+    prepare_build_dir ios-sim
+    build_comkit ios-sim
+    build_qxmpp ios-sim
+    print_final_message
+
+}
+
 
 ############################################################################################
 case "${TARGET_OS}" in
@@ -302,6 +327,8 @@ case "${TARGET_OS}" in
            ;;          
   ios)     build_ios
            ;;          
+  ios-sim)     build_ios_sim
+           ;;                     
 esac
 
 ############################################################################################
