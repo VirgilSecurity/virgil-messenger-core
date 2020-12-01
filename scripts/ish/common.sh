@@ -19,13 +19,8 @@ fi
 function prepare_build_dir() {
     echo "=== Prepare directory"
     echo
-    if [ "${CFG_CLEAN}" == "off" ]; then
-        echo "Skip due to config parameter CFG_CLEAN"
-        echo
-    else
-        rm -rf ${1} || true
-    fi
-    mkdir -p ${1} || true
+    rm -rf ${PROJECT_DIR}/prebuilt/${1} || true
+    mkdir -p ${PROJECT_DIR}/prebuilt/${1} || true
 }
 
 #*************************************************************************************************************
