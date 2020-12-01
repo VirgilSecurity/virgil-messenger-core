@@ -23,37 +23,61 @@ print_usage() {
 ############################################################################################
 
 TARGET_OS="linux"
+BUILD_TYPE="release"
+export INSTALL_DIR_BASE="${PROJECT_DIR}/prebuilt"
 while [ -n "$1" ]
  do
    case "$1" in
      -h) print_usage
          exit 0
          ;;
-     -s) SOURCE_DIR="$2"
-         shift
-         ;;
      -t) TARGET_OS="$2"
          shift
          ;;          
-     -c) CUSTOMER="$2"
+     -b) BUILD_TYPE="$2"
          shift
-         ;;          
+         ;;                   
+     -i) export INSTALL_DIR_BASE="$2"
+         shift
+         ;;                      
      *) print_usage;;
    esac
    shift
 done
 
 ############################################################################################
+function get_sparkle() {
+    
+    print_message "=== Get Sparkle framework"
 
+    BUILD_DIR=${PROJECT_DIR}/prebuilt/macos
+    SPARKLE_ARCH="Sparkle-1.23.0.tar.bz2"
+    SPARKLE_URL="https://github.com/sparkle-project/Sparkle/releases/download/1.23.0/${SPARKLE_ARCH}"
+    
+    pushd ${BUILD_DIR}
+        wget ${SPARKLE_URL}
+        rm -rf sparkle || true
+        mkdir sparkle
+        tar -xvjf ${SPARKLE_ARCH} -C sparkle
+
+        rm ${SPARKLE_ARCH}
+        rm -rf "sparkle/Sparkle Test App.app"
+        rm -rf "sparkle/Sparkle Test App.app.dSYM"
+        rm "sparkle/CHANGELOG"
+        rm "sparkle/LICENSE"
+        rm "sparkle/SampleAppcast.xml"
+    popd
+}
+
+############################################################################################
 function build_qxmpp() {
-    local BUILD_TYPE="release"
-    local QT_LIB_PREFIX=$1
+    local PLATFORM="${1}"
+    local ANDROID_ABI="${2}"
+
     local CORES=10
     local QXMPP_DIR="${SCRIPT_FOLDER}/../ext/qxmpp"
-    local BUILD_DIR_BASE="${QXMPP_DIR}"
-    local BUILD_DIR=${BUILD_DIR_BASE}/cmake-build-${QT_BUILD_DIR_SUFFIX}/${BUILD_TYPE}
-    local INSTALL_DIR=${QT_INSTALL_DIR_BASE}/${QT_BUILD_DIR_SUFFIX}/${BUILD_TYPE}/installed
-    
+    local BUILD_DIR_SUFFIX="${PLATFORM}"
+
     echo
     echo "===================================="
     echo "=== Building QXMPP"
@@ -62,19 +86,46 @@ function build_qxmpp() {
     echo "===================================="
     echo
     
+   if [[ "${PLATFORM}" == "macos" ]]; then
+       QT_PREFIX="clang_64"
+       CMAKE_DEPS_ARGUMENTS=" "
+   elif [[ "${PLATFORM}" == "windows" && "$(uname)" == "Linux" ]]; then
+       CMAKE_DEPS_ARGUMENTS=" "
+   elif [[ "${PLATFORM}" == "linux" ]]; then
+       QT_PREFIX="gcc_64"
+       CMAKE_DEPS_ARGUMENTS=" "
+   elif [[ "${PLATFORM}" == "ios" ]]; then
+       CMAKE_DEPS_ARGUMENTS=""
+   elif [[ "${PLATFORM}" == "ios-sim" ]]; then
+       CMAKE_DEPS_ARGUMENTS=" "
+   elif [[ "${PLATFORM}" == "android" ]]; then
+       QT_PREFIX="android"   
+       BUILD_DIR_SUFFIX="${PLATFORM}.${ANDROID_ABI}"
+       CMAKE_DEPS_ARGUMENTS=" \
+	   -DANDROID_PLATFORM=${CFG_ANDROID_PLATFORM} \
+	   -DANDROID_ABI=${ANDROID_ABI} \
+	   -DCMAKE_TOOLCHAIN_FILE=${CFG_ANDROID_NDK}/build/cmake/android.toolchain.cmake \
+	   "
+    fi    
+    
+    local BUILD_DIR=${QXMPP_DIR}/cmake-build-${BUILD_DIR_SUFFIX}/${BUILD_TYPE}
+    local INSTALL_DIR=${INSTALL_DIR_BASE}/${BUILD_DIR_SUFFIX}/${BUILD_TYPE}/installed
+    
     rm -rf ${BUILD_DIR}
     mkdir -p ${BUILD_DIR}
     mkdir -p ${INSTALL_DIR}
-    
+
     pushd ${BUILD_DIR}
     # prepare to build
-    cmake  -DBUILD_SHARED=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF -DWITH_OPUS=OFF \
-	   -DWITH_VPX=OFF -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -G "Unix Makefiles" \
-	   -DCMAKE_PREFIX_PATH="${CFG_QT_SDK_DIR}/${QT_LIB_PREFIX}" \
-           -DQt5_DIR=${CFG_QT_SDK_DIR}/${QT_LIB_PREFIX}/lib/cmake/Qt5/ \
-           -DQt5Core_DIR=${CFG_QT_SDK_DIR}/${QT_LIB_PREFIX}/lib/cmake/Qt5Core/ \
-           -DQt5Network_DIR=${CFG_QT_SDK_DIR}/${QT_LIB_PREFIX}/lib/cmake/Qt5Network/ \
-           -DQt5Xml_DIR=${CFG_QT_SDK_DIR}/${QT_LIB_PREFIX}/lib/cmake/Qt5Xml/  ${BUILD_DIR_BASE}
+    cmake  -DBUILD_SHARED=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF \
+	   -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -G "Unix Makefiles" \
+	   -DCMAKE_PREFIX_PATH="${CFG_QT_SDK_DIR}/${QT_PREFIX}" \
+           -DQt5_DIR=${CFG_QT_SDK_DIR}/${QT_PREFIX}/lib/cmake/Qt5/ \
+           -DQt5Core_DIR=${CFG_QT_SDK_DIR}/${QT_PREFIX}/lib/cmake/Qt5Core/ \
+           -DQt5Network_DIR=${CFG_QT_SDK_DIR}/${QT_PREFIX}/lib/cmake/Qt5Network/ \
+           -DQt5Xml_DIR=${CFG_QT_SDK_DIR}/${QT_PREFIX}/lib/cmake/Qt5Xml/ \
+           ${CMAKE_DEPS_ARGUMENTS} \
+           ${QXMPP_DIR}
     
     # build all targets
     make -j ${CORES}
@@ -99,17 +150,13 @@ build_curl() {
 
 ############################################################################################
 build_comkit() {
+    local PLATFORM="${1}"
+    local ANDROID_ABI="${2}"        
 
-    CRYPTO_C_DIR="${SCRIPT_FOLDER}/../ext/virgil-crypto-c"
-    BUILD_DIR_BASE="${CRYPTO_C_DIR}"
-    PLATFORM="${1}"
-    ANDROID_ABI="${2}"
-    BUILD_DIR_SUFFIX=${PLATFORM}
-    BUILD_TYPE="release"
-    BUILD_DIR=${BUILD_DIR_BASE}/cmake-build-${BUILD_DIR_SUFFIX}/${BUILD_TYPE}
-    LIBS_DIR=${INSTALL_DIR}/usr/local/lib${LIB_ARCH}
-
-    [ "$(arch)" == "x86_64" ] && LIB_ARCH="64" || LIB_ARCH=""
+    [ "$(arch)" == "x86_64" ] && LIB_ARCH="64" || LIB_ARCH=""    
+    local CRYPTO_C_DIR="${SCRIPT_FOLDER}/../ext/virgil-crypto-c"
+    local LIBS_DIR=${INSTALL_DIR}/usr/local/lib${LIB_ARCH}
+    local BUILD_DIR_SUFFIX="${PLATFORM}"
 
    print_message "Building comm-kit"
     
@@ -128,14 +175,14 @@ build_comkit() {
        CMAKE_DEPS_ARGUMENTS=" \
            -DAPPLE_PLATFORM=IOS \
            -DAPPLE_BITCODE=ON \
-           -DCMAKE_TOOLCHAIN_FILE=${BUILD_DIR_BASE}/ext/virgil-crypto-c/cmake/apple.cmake \
+           -DCMAKE_TOOLCHAIN_FILE=${CRYPTO_C_DIR}/cmake/apple.cmake \
            -DVSSC_HTTP_CLIENT_CURL=OFF \
            -DVSSC_HTTP_CLIENT_X=ON"
    elif [[ "${PLATFORM}" == "ios-sim" ]]; then
        CMAKE_DEPS_ARGUMENTS=" \
            -DAPPLE_PLATFORM=IOS_SIM64 \
            -DAPPLE_BITCODE=ON \
-           -DCMAKE_TOOLCHAIN_FILE=${BUILD_DIR_BASE}/ext/virgil-crypto-c/cmake/apple.cmake \
+           -DCMAKE_TOOLCHAIN_FILE=${CRYPTO_C_DIR}/cmake/apple.cmake \
            -DVSSC_HTTP_CLIENT_CURL=OFF \
            -DVSSC_HTTP_CLIENT_X=ON"
    elif [[ "${PLATFORM}" == "android" ]]; then
@@ -144,20 +191,21 @@ build_comkit() {
            -DCMAKE_CROSSCOMPILING=ON \
            -DANDROID=ON \
            -DANDROID_QT=ON  \
-           ${ANDROID_PLATFORM} \
+           -DANDROID_PLATFORM=${ANDROID_PLATFORM} \
            -DANDROID_ABI=${ANDROID_ABI} \
            -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake \
-           -DCURL_ROOT_DIR=${QT_INSTALL_DIR_BASE}/${BUILD_DIR_SUFFIX}/${BUILD_TYPE}/installed/usr/local/"
+           -DCURL_ROOT_DIR=${INSTALL_DIR_BASE}/${BUILD_DIR_SUFFIX}/${BUILD_TYPE}/installed/usr/local/"
     fi    
 
-    INSTALL_DIR=${QT_INSTALL_DIR_BASE}/${BUILD_DIR_SUFFIX}/${BUILD_TYPE}/installed    
+    local BUILD_DIR=${CRYPTO_C_DIR}/cmake-build-${BUILD_DIR_SUFFIX}/${BUILD_TYPE}    
+    local INSTALL_DIR=${INSTALL_DIR_BASE}/${BUILD_DIR_SUFFIX}/${BUILD_TYPE}/installed        
 
     echo
     echo "===================================="
     echo "=== ${BUILD_DIR_SUFFIX} ${BUILD_TYPE} build"
     echo "=== Output directory: ${BUILD_DIR}"
     echo "=== Install directory: ${INSTALL_DIR}"
-    echo "=== CURL directory: ${QT_INSTALL_DIR_BASE}/${BUILD_DIR_SUFFIX}/${BUILD_TYPE}/installed/usr/local}"
+    echo "=== CURL directory: ${INSTALL_DIR_BASE}/${BUILD_DIR_SUFFIX}/${BUILD_TYPE}/installed/usr/local}"
     echo "===================================="
     echo
 
@@ -171,9 +219,10 @@ build_comkit() {
     echo "==========="
     echo "=== Run CMAKE "
     echo "==========="
+    
     cmake -DENABLE_TESTING=OFF -DENABLE_CLANGFORMAT=OFF -DVIRGIL_LIB_RATCHET=OFF \
 	  -DVIRGIL_LIB_PHE=OFF -DVIRGIL_POST_QUANTUM=OFF -DBUILD_APPLE_FRAMEWORKS=OFF \
-	  -DCMAKE_BUILD_TYPE="${BUILD_TYPE}" -G "Unix Makefiles" ${CMAKE_DEPS_ARGUMENTS} ${BUILD_DIR_BASE} 
+	  -DCMAKE_BUILD_TYPE="${BUILD_TYPE}" -G "Unix Makefiles" ${CMAKE_DEPS_ARGUMENTS} ${CRYPTO_C_DIR} 
 			    
     # build all targets
     echo "==========="
@@ -202,22 +251,16 @@ build_comkit() {
 
 ############################################################################################
 build_linux() {
-    PLATFORM=linux-g++
-    LINUX_QMAKE="${CFG_QT_SDK_DIR}/gcc_64/bin/qmake"
-    export QT_BUILD_DIR_SUFFIX=linux
-    BUILD_DIR=${PROJECT_DIR}/prebuilt/${QT_BUILD_DIR_SUFFIX}
-
     print_title
-    prepare_build_dir ${BUILD_DIR}
-#    print_message "Building qtwebdriver"
-#    build_qtwebdriver ${LINUX_QMAKE} ${BUILD_DIR}
+    prepare_build_dir linux
     build_comkit linux
-    build_qxmpp gcc_64
+    build_qxmpp linux
     print_final_message
 }
 
 ############################################################################################
 build_android() {
+    print_title
     prepare_build_dir ${PROJECT_DIR}/prebuilt/android.arm64-v8a
     prepare_build_dir ${PROJECT_DIR}/prebuilt/android.armeabi-v7a
     prepare_build_dir ${PROJECT_DIR}/prebuilt/android.x86
@@ -225,16 +268,26 @@ build_android() {
 
     build_curl
     build_comkit android arm64-v8a
+    build_qxmpp  android arm64-v8a
     build_comkit android armeabi-v7a
+    build_qxmpp  android armeabi-v7a
     build_comkit android x86
+    build_qxmpp  android x86
     build_comkit android x86_64
-    
-    build_qxmpp gcc_64
+    build_qxmpp  android x86_64
+    print_final_message    
+
 }
 
 ############################################################################################
 build_macos() {
- echo
+    print_title
+    prepare_build_dir macos
+    build_comkit macos
+    build_qxmpp macos
+    get_sparkle
+    print_final_message
+
 }
 
 ############################################################################################

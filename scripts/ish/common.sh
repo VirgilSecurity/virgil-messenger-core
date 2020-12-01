@@ -1,11 +1,6 @@
 #!/bin/bash
 
 PROJECT_DIR="${SCRIPT_FOLDER}/.."
-APPLICATION_NAME=virgil-messenger
-BUILD_TYPE=release
-TOOL_NAME=qmake
-export QT_INSTALL_DIR_BASE=${PROJECT_DIR}/prebuilt
-export INSTALL_DIR_BASE="${QT_INSTALL_DIR_BASE}"
 source ${SCRIPT_FOLDER}/config/config-all.sh    
 
 #
