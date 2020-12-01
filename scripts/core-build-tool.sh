@@ -95,11 +95,13 @@ function build_qxmpp() {
        QT_PREFIX="gcc_64"
        CMAKE_DEPS_ARGUMENTS=" "
    elif [[ "${PLATFORM}" == "ios" ]]; then
+       QT_PREFIX="ios"         
        CMAKE_DEPS_ARGUMENTS=" \
         -DAPPLE_PLATFORM=IOS -DAPPLE_BITCODE=ON \
         -DCMAKE_TOOLCHAIN_FILE=${SCRIPT_FOLDER}/../ext/virgil-crypto-c/cmake/apple.cmake
         "
    elif [[ "${PLATFORM}" == "ios-sim" ]]; then
+       QT_PREFIX="ios"      
        CMAKE_DEPS_ARGUMENTS=" \
         -DAPPLE_PLATFORM=IOS -DAPPLE_BITCODE=ON \
         -DCMAKE_TOOLCHAIN_FILE=${SCRIPT_FOLDER}/../ext/virgil-crypto-c/cmake/apple.cmake
