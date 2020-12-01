@@ -12,7 +12,7 @@ print_usage() {
   echo
   echo "$(basename ${0})"
   echo
-  echo "  -t < Target OS  >"
+  echo "  -t [ linux | android | macos | ios | ios-sim ]  - Target platform "
   echo "  -h"
   exit 0
 }
