@@ -90,7 +90,11 @@ function build_qxmpp() {
        QT_PREFIX="clang_64"
        CMAKE_DEPS_ARGUMENTS=" "
    elif [[ "${PLATFORM}" == "windows" && "$(uname)" == "Linux" ]]; then
-       CMAKE_DEPS_ARGUMENTS=" "
+       QT_PREFIX="mingw81_64"
+       CMAKE_DEPS_ARGUMENTS="-DCMAKE_TOOLCHAIN_FILE=/usr/share/mingw/toolchain-mingw64.cmake \
+           -DWINVER=0x0601 -D_WIN32_WINNT=0x0601 \
+           -DCYGWIN=1 \
+           "
    elif [[ "${PLATFORM}" == "linux" ]]; then
        QT_PREFIX="gcc_64"
        CMAKE_DEPS_ARGUMENTS=" "
@@ -227,11 +231,12 @@ build_comkit() {
     echo "==========="
     echo "=== Run CMAKE "
     echo "==========="
-    
+
     cmake -DENABLE_TESTING=OFF -DENABLE_CLANGFORMAT=OFF -DVIRGIL_LIB_RATCHET=OFF \
 	  -DVIRGIL_LIB_PHE=OFF -DVIRGIL_POST_QUANTUM=OFF -DBUILD_APPLE_FRAMEWORKS=OFF \
-	  -DCMAKE_BUILD_TYPE="${BUILD_TYPE}" -G "Unix Makefiles" ${CMAKE_DEPS_ARGUMENTS} ${CRYPTO_C_DIR} 
-			    
+	  -DVIRGIL_LIB_PYTHIA=OFF -DVIRGIL_SDK_PYTHIA=OFF -DRELIC_LIBRARY=OFF \
+	  -DCMAKE_BUILD_TYPE="${BUILD_TYPE}" -G "Unix Makefiles" ${CMAKE_DEPS_ARGUMENTS} ${CRYPTO_C_DIR}
+
     # build all targets
     echo "==========="
     echo "=== Building"
@@ -318,6 +323,15 @@ build_ios_sim() {
 
 }
 
+############################################################################################
+build_windows() {
+    print_title
+    prepare_build_dir windows
+    build_comkit windows
+    build_qxmpp windows
+    print_final_message
+}
+
 
 ############################################################################################
 case "${TARGET_OS}" in
@@ -326,11 +340,13 @@ case "${TARGET_OS}" in
   macos)   build_macos
            ;;
   android) build_android
-           ;;          
+           ;;
   ios)     build_ios
-           ;;          
-  ios-sim)     build_ios_sim
-           ;;                     
+           ;;
+  ios-sim) build_ios_sim
+           ;;
+  windows) build_windows
+           ;;
 esac
 
 ############################################################################################
