@@ -92,8 +92,7 @@ function build_qxmpp() {
    elif [[ "${PLATFORM}" == "windows" && "$(uname)" == "Linux" ]]; then
        QT_PREFIX="mingw81_64"
        CMAKE_DEPS_ARGUMENTS="-DCMAKE_TOOLCHAIN_FILE=/usr/share/mingw/toolchain-mingw64.cmake \
-           -DWINVER=0x0601 -D_WIN32_WINNT=0x0601 \
-           -DCYGWIN=1 \
+           -DBUILD_SHARED=OFF -DCYGWIN=1 \
            "
    elif [[ "${PLATFORM}" == "linux" ]]; then
        QT_PREFIX="gcc_64"
