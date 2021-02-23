@@ -33,13 +33,13 @@ while [ -n "$1" ]
          ;;
      -t) TARGET_OS="$2"
          shift
-         ;;          
+         ;;
      -b) BUILD_TYPE="$2"
          shift
-         ;;                   
+         ;;
      -i) export INSTALL_DIR_BASE="$2"
          shift
-         ;;                      
+         ;;
      *) print_usage;;
    esac
    shift
@@ -47,13 +47,13 @@ done
 
 ############################################################################################
 function get_sparkle() {
-    
+
     print_message "=== Get Sparkle framework"
 
     BUILD_DIR=${PROJECT_DIR}/prebuilt/macos
     SPARKLE_ARCH="Sparkle-1.23.0.tar.bz2"
     SPARKLE_URL="https://github.com/sparkle-project/Sparkle/releases/download/1.23.0/${SPARKLE_ARCH}"
-    
+
     pushd ${BUILD_DIR}
         wget ${SPARKLE_URL}
         rm -rf sparkle || true
@@ -85,23 +85,26 @@ function build_qxmpp() {
     echo "=== Output directory: ${BUILD_DIR}"
     echo "===================================="
     echo
-    
+
    if [[ "${PLATFORM}" == "macos" ]]; then
        QT_PREFIX="clang_64"
        CMAKE_DEPS_ARGUMENTS=" "
    elif [[ "${PLATFORM}" == "windows" && "$(uname)" == "Linux" ]]; then
-       CMAKE_DEPS_ARGUMENTS=" "
+       QT_PREFIX="mingw81_64"
+       CMAKE_DEPS_ARGUMENTS="-DCMAKE_TOOLCHAIN_FILE=/usr/share/mingw/toolchain-mingw64.cmake \
+           -DBUILD_SHARED=OFF -DCYGWIN=1 \
+           "
    elif [[ "${PLATFORM}" == "linux" ]]; then
        QT_PREFIX="gcc_64"
        CMAKE_DEPS_ARGUMENTS=" "
    elif [[ "${PLATFORM}" == "ios" ]]; then
-       QT_PREFIX="ios"         
+       QT_PREFIX="ios"
        CMAKE_DEPS_ARGUMENTS=" \
         -DAPPLE_PLATFORM=IOS -DAPPLE_BITCODE=ON \
         -DCMAKE_TOOLCHAIN_FILE=${SCRIPT_FOLDER}/../ext/virgil-crypto-c/cmake/apple.cmake
         "
    elif [[ "${PLATFORM}" == "ios-sim" ]]; then
-       QT_PREFIX="ios"      
+       QT_PREFIX="ios"
        CMAKE_DEPS_ARGUMENTS=" \
         -DAPPLE_PLATFORM=IOS_SIM64 -DAPPLE_BITCODE=ON \
         -DCMAKE_TOOLCHAIN_FILE=${SCRIPT_FOLDER}/../ext/virgil-crypto-c/cmake/apple.cmake
@@ -110,15 +113,15 @@ function build_qxmpp() {
        QT_PREFIX="android"   
        BUILD_DIR_SUFFIX="${PLATFORM}.${ANDROID_ABI}"
        CMAKE_DEPS_ARGUMENTS=" \
-	   -DANDROID_PLATFORM=${CFG_ANDROID_PLATFORM} \
-	   -DANDROID_ABI=${ANDROID_ABI} \
-	   -DCMAKE_TOOLCHAIN_FILE=${CFG_ANDROID_NDK}/build/cmake/android.toolchain.cmake \
-	   "
-    fi    
-    
+           -DANDROID_PLATFORM=${CFG_ANDROID_PLATFORM} \
+           -DANDROID_ABI=${ANDROID_ABI} \
+           -DCMAKE_TOOLCHAIN_FILE=${CFG_ANDROID_NDK}/build/cmake/android.toolchain.cmake \
+          "
+    fi
+
     local BUILD_DIR=${QXMPP_DIR}/cmake-build-${BUILD_DIR_SUFFIX}/${BUILD_TYPE}
     local INSTALL_DIR=${INSTALL_DIR_BASE}/${BUILD_DIR_SUFFIX}/${BUILD_TYPE}/installed
-    
+
     rm -rf ${BUILD_DIR}
     mkdir -p ${BUILD_DIR}
     mkdir -p ${INSTALL_DIR}
@@ -126,18 +129,18 @@ function build_qxmpp() {
     pushd ${BUILD_DIR}
     # prepare to build
     cmake  -DBUILD_SHARED=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF \
-	   -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -G "Unix Makefiles" \
-	   -DCMAKE_PREFIX_PATH="${CFG_QT_SDK_DIR}/${QT_PREFIX}" \
+           -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -G "Unix Makefiles" \
+           -DCMAKE_PREFIX_PATH="${CFG_QT_SDK_DIR}/${QT_PREFIX}" \
            -DQt5_DIR=${CFG_QT_SDK_DIR}/${QT_PREFIX}/lib/cmake/Qt5/ \
            -DQt5Core_DIR=${CFG_QT_SDK_DIR}/${QT_PREFIX}/lib/cmake/Qt5Core/ \
            -DQt5Network_DIR=${CFG_QT_SDK_DIR}/${QT_PREFIX}/lib/cmake/Qt5Network/ \
            -DQt5Xml_DIR=${CFG_QT_SDK_DIR}/${QT_PREFIX}/lib/cmake/Qt5Xml/ \
            ${CMAKE_DEPS_ARGUMENTS} \
            ${QXMPP_DIR}
-    
+
     # build all targets
     make -j ${CORES}
-    
+
     # install all targets
     make DESTDIR=${INSTALL_DIR} install
     if [ -d ${INSTALL_DIR}/usr/local/lib64 ]; then
@@ -159,15 +162,15 @@ build_curl() {
 ############################################################################################
 build_comkit() {
     local PLATFORM="${1}"
-    local ANDROID_ABI="${2}"        
+    local ANDROID_ABI="${2}"
 
-    [ "$(arch)" == "x86_64" ] && LIB_ARCH="64" || LIB_ARCH=""    
+    [ "$(arch)" == "x86_64" ] && LIB_ARCH="64" || LIB_ARCH=""
     local CRYPTO_C_DIR="${SCRIPT_FOLDER}/../ext/virgil-crypto-c"
     local LIBS_DIR=${INSTALL_DIR}/usr/local/lib${LIB_ARCH}
     local BUILD_DIR_SUFFIX="${PLATFORM}"
 
    print_message "Building comm-kit"
-    
+
    if [[ "${PLATFORM}" == "macos" ]]; then
        CMAKE_DEPS_ARGUMENTS=" \
        -DVSSC_HTTP_CLIENT_CURL=OFF \
@@ -203,10 +206,10 @@ build_comkit() {
            -DANDROID_ABI=${ANDROID_ABI} \
            -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake \
            -DCURL_ROOT_DIR=${INSTALL_DIR_BASE}/${BUILD_DIR_SUFFIX}/${BUILD_TYPE}/installed/usr/local/"
-    fi    
+    fi
 
-    local BUILD_DIR=${CRYPTO_C_DIR}/cmake-build-${BUILD_DIR_SUFFIX}/${BUILD_TYPE}    
-    local INSTALL_DIR=${INSTALL_DIR_BASE}/${BUILD_DIR_SUFFIX}/${BUILD_TYPE}/installed        
+    local BUILD_DIR=${CRYPTO_C_DIR}/cmake-build-${BUILD_DIR_SUFFIX}/${BUILD_TYPE}
+    local INSTALL_DIR=${INSTALL_DIR_BASE}/${BUILD_DIR_SUFFIX}/${BUILD_TYPE}/installed
 
     echo
     echo "===================================="
@@ -227,11 +230,12 @@ build_comkit() {
     echo "==========="
     echo "=== Run CMAKE "
     echo "==========="
-    
+
     cmake -DENABLE_TESTING=OFF -DENABLE_CLANGFORMAT=OFF -DVIRGIL_LIB_RATCHET=OFF \
-	  -DVIRGIL_LIB_PHE=OFF -DVIRGIL_POST_QUANTUM=OFF -DBUILD_APPLE_FRAMEWORKS=OFF \
-	  -DCMAKE_BUILD_TYPE="${BUILD_TYPE}" -G "Unix Makefiles" ${CMAKE_DEPS_ARGUMENTS} ${CRYPTO_C_DIR} 
-			    
+          -DVIRGIL_LIB_PHE=OFF -DVIRGIL_POST_QUANTUM=OFF -DBUILD_APPLE_FRAMEWORKS=OFF \
+          -DVIRGIL_LIB_PYTHIA=OFF -DVIRGIL_SDK_PYTHIA=OFF -DRELIC_LIBRARY=OFF \
+          -DCMAKE_BUILD_TYPE="${BUILD_TYPE}" -G "Unix Makefiles" ${CMAKE_DEPS_ARGUMENTS} ${CRYPTO_C_DIR}
+
     # build all targets
     echo "==========="
     echo "=== Building"
@@ -283,7 +287,7 @@ build_android() {
     build_qxmpp  android x86
     build_comkit android x86_64
     build_qxmpp  android x86_64
-    print_final_message    
+    print_final_message
 
 }
 
@@ -318,6 +322,15 @@ build_ios_sim() {
 
 }
 
+############################################################################################
+build_windows() {
+    print_title
+    prepare_build_dir windows
+    build_comkit windows
+    build_qxmpp windows
+    print_final_message
+}
+
 
 ############################################################################################
 case "${TARGET_OS}" in
@@ -326,11 +339,13 @@ case "${TARGET_OS}" in
   macos)   build_macos
            ;;
   android) build_android
-           ;;          
+           ;;
   ios)     build_ios
-           ;;          
-  ios-sim)     build_ios_sim
-           ;;                     
+           ;;
+  ios-sim) build_ios_sim
+           ;;
+  windows) build_windows
+           ;;
 esac
 
 ############################################################################################
