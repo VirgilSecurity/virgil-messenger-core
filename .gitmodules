@@ -4,9 +4,6 @@
 [submodule "ext/qxmpp"]
 	path = ext/qxmpp
 	url = ../../qxmpp-project/qxmpp.git
-[submodule "ext/openssl-curl-android"]
-	path = ext/openssl-curl-android
-	url = ../openssl-curl-android.git
 [submodule "ext/virgil-crypto-c"]
 	path = ext/virgil-crypto-c
 	url = ../virgil-crypto-c.git
