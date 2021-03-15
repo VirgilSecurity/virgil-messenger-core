@@ -7,3 +7,6 @@
 [submodule "ext/virgil-crypto-c"]
 	path = ext/virgil-crypto-c
 	url = ../virgil-crypto-c.git
+[submodule "ext/curl"]
+	path = ext/curl
+	url = ../../curl/curl.git
