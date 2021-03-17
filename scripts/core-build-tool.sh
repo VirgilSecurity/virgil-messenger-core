@@ -46,6 +46,119 @@ while [ -n "$1" ]
 done
 
 ############################################################################################
+function build_curl_android() {
+    local BUILD_DIR=${1}
+
+    local CURL_DIR="${PROJECT_DIR}/ext/curl"
+    local CURL_BUILD_DIR="${PROJECT_DIR}/ext/curl/build"
+
+    rm -rf "${CURL_BUILD_DIR}"
+    mkdir -p "${CURL_BUILD_DIR}"
+
+    local PRFIX_DIR=${INSTALL_DIR_BASE}/android.${BUILD_DIR}/release/installed/usr/local
+    local CA_FILE="/data/user/0/${ANDOID_APP_ID}/files/cert.pem"
+
+    case "${BUILD_DIR}" in
+      arm64-v8a)     TARGET_HOST="aarch64-linux-android"
+                     OPENSSL_LIB_PREFIX="arm64"
+                     ;;
+      armeabi-v7a)   TARGET_HOST="armv7a-linux-androideabi"
+                     OPENSSL_LIB_PREFIX="arm"
+                     ;;
+      x86)           TARGET_HOST="i686-linux-android"
+                     OPENSSL_LIB_PREFIX="x86"
+                     ;;
+      x86_64)        TARGET_HOST="x86_64-linux-android"
+                     OPENSSL_LIB_PREFIX="x86_64"
+                     ;;
+    esac
+
+    if [ "$TARGET_HOST" == "armv7a-linux-androideabi" ]; then
+        TOOLS_PREFIX=arm-linux-androideabi
+    else
+        TOOLS_PREFIX=$TARGET_HOST
+    fi
+
+    # Prepare QT shared OpenSSL libs
+    mkdir -p ${CURL_BUILD_DIR}/openssl_lib/
+    ln -s ${ANDROID_SDK}/android_openssl/latest/${OPENSSL_LIB_PREFIX}/libcrypto_1_1.so ${CURL_BUILD_DIR}/openssl_lib/libcrypto.so
+    ln -s ${ANDROID_SDK}/android_openssl/latest/${OPENSSL_LIB_PREFIX}/libssl_1_1.so    ${CURL_BUILD_DIR}/openssl_lib/libssl.so
+
+    export CPPFLAGS="-I${ANDROID_SDK}/android_openssl/static/include" 
+    export LDFLAGS="-Wl,-L${CURL_BUILD_DIR}/openssl_lib/"
+
+    echo "################"
+    echo "### OpenSSL DIR: [${CPPFLAGS}] LIB: [${LDFLAGS}]"
+    echo "################"
+
+    # Prepare toolchain
+    export TOOLCHAIN=${CFG_ANDROID_NDK}/toolchains/llvm/prebuilt/${HOST_PLATFORM}
+    export PATH=$TOOLCHAIN/bin:$PATH
+    export AR=$TOOLCHAIN/bin/$TOOLS_PREFIX-ar
+    export AS=$TOOLCHAIN/bin/$TOOLS_PREFIX-as
+    export CC=$TOOLCHAIN/bin/$TARGET_HOST$MIN_SDK_VERSION-clang
+    export CXX=$TOOLCHAIN/bin/$TARGET_HOST$MIN_SDK_VERSION-clang++
+    export LD=$TOOLCHAIN/bin/$TARGET_HOST-ld
+    export RANLIB=$TOOLCHAIN/bin/$TOOLS_PREFIX-ranlib
+    export STRIP=$TOOLCHAIN/bin/$TOOLS_PREFIX-strip
+
+
+    pushd "${CURL_DIR}"
+      make clean || true
+      ./buildconf
+
+      ./configure --host=$TARGET_HOST \
+         --target=${TARGET_HOST} --prefix=${PRFIX_DIR} --with-ssl --disable-dependency-tracking --with-ca-bundle=$CA_FILE \
+         --disable-shared --disable-verbose --disable-manual --disable-crypto-auth --disable-unix-sockets --disable-ares \
+         --disable-rtsp --disable-ipv6 --disable-proxy --disable-versioned-symbols --enable-hidden-symbols --without-libidn \
+         --without-librtmp --without-zlib --disable-dict --disable-file --disable-ftp --disable-ftps --disable-gopher \
+         --disable-imap --disable-imaps --disable-pop3 --disable-pop3s --disable-smb --disable-smbs --disable-smtp \
+         --disable-smtps --disable-telnet --disable-tftp
+
+    make -j10
+    make install
+    popd
+}
+
+
+############################################################################################
+function build_curl_windows() {
+    local BUILD_DIR=${1}
+
+    local CURL_DIR="${PROJECT_DIR}/ext/curl"
+    local CURL_BUILD_DIR="${PROJECT_DIR}/ext/curl/build"
+
+    rm -rf "${CURL_BUILD_DIR}"
+    mkdir -p "${CURL_BUILD_DIR}"
+
+    local PRFIX_DIR=${INSTALL_DIR_BASE}/windows/release/installed/usr/local
+    local CA_FILE="/data/user/0/${ANDOID_APP_ID}/files/cert.pem"
+
+    export CPPFLAGS="-I/opt/Qt/Tools/OpenSSL-windows/Win_x64/include"
+    export LDFLAGS="-Wl,-L/opt/Qt/Tools/OpenSSL-windows/Win_x64/lib"
+    echo "################"
+    echo "### OpenSSL DIR: [${CPPFLAGS}] LIB: [${LDFLAGS}]"
+    echo "################"
+
+    pushd "${CURL_DIR}"
+      make clean || true
+      ./buildconf
+
+      ./configure --host=$TARGET_HOST \
+         --target=${TARGET_HOST} --prefix=${PRFIX_DIR} --with-ssl --disable-dependency-tracking --with-ca-bundle=$CA_FILE \
+         --disable-shared --disable-verbose --disable-manual --disable-crypto-auth --disable-unix-sockets --disable-ares \
+         --disable-rtsp --disable-ipv6 --disable-proxy --disable-versioned-symbols --enable-hidden-symbols --without-libidn \
+         --without-librtmp --without-zlib --disable-dict --disable-file --disable-ftp --disable-ftps --disable-gopher \
+         --disable-imap --disable-imaps --disable-pop3 --disable-pop3s --disable-smb --disable-smbs --disable-smtp \
+         --disable-smtps --disable-telnet --disable-tftp --host=x86_64-w64-mingw32
+
+    make -j10
+    make install
+    popd
+}
+
+
+############################################################################################
 function get_sparkle() {
 
     print_message "=== Get Sparkle framework"
@@ -125,7 +238,11 @@ function build_qxmpp() {
     rm -rf ${BUILD_DIR}
     mkdir -p ${BUILD_DIR}
     mkdir -p ${INSTALL_DIR}
-
+echo "#############################"
+echo "#############################"
+echo "### ${CFG_QT_SDK_DIR}/${QT_PREFIX}"
+echo "#############################"
+echo "#############################"
     pushd ${BUILD_DIR}
     # prepare to build
     cmake  -DBUILD_SHARED=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF \
@@ -152,14 +269,6 @@ function build_qxmpp() {
 }
 
 ############################################################################################
-build_curl() {
-    print_message "Building CURL"
-    pushd ${PROJECT_DIR}/ext/openssl-curl-android
-        ./build.sh "${CFG_ANDROID_NDK}" "${HOST_PLATFORM}" "com.virgilsecurity.qtmessenger"
-    popd
-}
-
-############################################################################################
 build_comkit() {
     local PLATFORM="${1}"
     local ANDROID_ABI="${2}"
@@ -179,6 +288,7 @@ build_comkit() {
        CMAKE_DEPS_ARGUMENTS=" \
            -DCMAKE_TOOLCHAIN_FILE=/usr/share/mingw/toolchain-mingw64.cmake \
            -DWINVER=0x0601 -D_WIN32_WINNT=0x0601 \
+           -DCURL_ROOT_DIR=${INSTALL_DIR_BASE}/${BUILD_DIR_SUFFIX}/${BUILD_TYPE}/installed/usr/local/ \
            -DCYGWIN=1"
    elif [[ "${PLATFORM}" == "linux" ]]; then
        CMAKE_DEPS_ARGUMENTS=" "
@@ -273,12 +383,16 @@ build_linux() {
 ############################################################################################
 build_android() {
     print_title
-    prepare_build_dir ${PROJECT_DIR}/prebuilt/android.arm64-v8a
-    prepare_build_dir ${PROJECT_DIR}/prebuilt/android.armeabi-v7a
-    prepare_build_dir ${PROJECT_DIR}/prebuilt/android.x86
-    prepare_build_dir ${PROJECT_DIR}/prebuilt/android.x86_64
+    prepare_build_dir android.arm64-v8a
+    prepare_build_dir android.armeabi-v7a
+    prepare_build_dir android.x86
+    prepare_build_dir android.x86_64
 
-    build_curl
+    build_curl_android arm64-v8a
+    build_curl_android armeabi-v7a
+    build_curl_android x86
+    build_curl_android x86_64
+
     build_comkit android arm64-v8a
     build_qxmpp  android arm64-v8a
     build_comkit android armeabi-v7a
@@ -326,6 +440,7 @@ build_ios_sim() {
 build_windows() {
     print_title
     prepare_build_dir windows
+    build_curl_windows
     build_comkit windows
     build_qxmpp windows
     print_final_message
@@ -351,5 +466,4 @@ esac
 ############################################################################################
 ############################################################################################
 ############################################################################################
-
 

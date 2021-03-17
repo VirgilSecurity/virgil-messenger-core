@@ -1,7 +1,7 @@
 #!/bin/bash
 
 PROJECT_DIR="${SCRIPT_FOLDER}/.."
-source ${SCRIPT_FOLDER}/config/config-all.sh    
+source ${SCRIPT_FOLDER}/config/config-all.sh
 
 #
 # Check platform
