@@ -12,7 +12,7 @@ print_usage() {
   echo
   echo "$(basename ${0})"
   echo
-  echo "  -t [ linux | android | macos | ios | ios-sim ]  - Target platform "
+  echo "  -t [ linux | android | macos | ios | ios-sim | windows ]  - Target platform "
   echo "  -h"
   exit 0
 }
@@ -44,6 +44,13 @@ while [ -n "$1" ]
    esac
    shift
 done
+
+############################################################################################
+function prepare_winsparkle() {
+   local BUILD_DIR=${PROJECT_DIR}/prebuilt/windows
+   local SPARKLE_DIR="${SCRIPT_FOLDER}/../ext/winsparkle"
+   cp -rf ${SPARKLE_DIR} ${BUILD_DIR}
+}
 
 ############################################################################################
 function get_sparkle() {
@@ -328,6 +335,7 @@ build_windows() {
     prepare_build_dir windows
     build_comkit windows
     build_qxmpp windows
+    prepare_winsparkle
     print_final_message
 }
 
